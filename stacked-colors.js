@@ -2,13 +2,15 @@
 var m = {x:0, y:0};
 var c1,c2;
 
+justpressed = false;
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
     grow = windowHeight;
     background(0);
     colorMode(HSB,360,100,100);
-
+    c1 = color(random(360),0,100);
+    c2 = color(random(360),0,0);
 
     //disable default touch events for mobile
     var el = document.getElementsByTagName("canvas")[0];
@@ -20,7 +22,7 @@ function setup() {
 
     lineval = fillArray(0,width/wres);
 
-
+    drawLines();
 }
 
 function windowResized() {
@@ -42,14 +44,20 @@ function update(){
     m.y = max(touchY, mouseY);
     m.pressed = mouseIsPressed || touchIsDown;
 
+    if(m.pressed){
+      justpressed = true;
+    }
 
+    if(!m.pressed && justpressed){
+        drawLines();
+        justpressed = false;
+    }
 
 }
 
 function render(){
 
 
-   if(frameCount %10==0){drawLines();}
 }
 
 
@@ -59,8 +67,7 @@ var res = 10;
 var wres =30;
 
 var drawLines = function(){
-    c1 = color(random(360),100,100);
-    c2 = color(random(360),100,70);
+
     var num = Math.ceil(height/res);
     var wnum = Math.ceil(width/wres);
     var c;
@@ -95,6 +102,8 @@ var drawLines = function(){
     }
 
     lineval = fillArray(0,width/wres);
+    c1 = color(random(360),100,100);
+    c2 = color(random(360),100,70);
 }
 
 
