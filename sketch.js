@@ -6,6 +6,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   grow = windowHeight;
   background(0);
+  colorMode(HSB,255,100,100);
 
 
   //disable default touch events for mobile
@@ -17,7 +18,6 @@ function setup() {
   el.addEventListener("touchmove", pdefault, false);
 
  lineval = fillArray(0,width/wres);
- drawLines();
 }
 
 function windowResized() {
@@ -40,6 +40,7 @@ function update(){
   m.pressed = mouseIsPressed || touchIsDown;
 
 
+ drawLine();
 
 }
 
@@ -50,38 +51,45 @@ function render(){
 
 
 
-var res = 30;
-var wres = 20;
+var res = 10;
+var wres =5;
 
-var drawLines = function(){
-  var num = height/res;
-  var wnum = width/wres;
 
-  for(var i=0; i<num; i++){
-    //render lineval
+
+
+var drawLine= function(){
+    var wnum = Math.ceil(width/wres);
+
+    noStroke();
+
+    fill(130+random(50),100,100);
     beginShape();
 
-    for(var j=0; j<wnum; j++){
-      vertex(j*wres,lineval[j]);
+    for(var j=0; j<=wnum; j++){
+        vertex(j*wres,height/2+lineval[j]);
     }
 
 
-    for(var j=0; j<wnum+1; j++){
-      lineval[j]+=(res);
-         if(Math.random()<0.5){
-         lineval[j]+=(0.1*res*noise(res*i,wres*j))
-         }
+    for(var j=0; j<=wnum; j++){
+        lineval[j]+=res;
+        if(Math.random()<0.4){
+            lineval[j]+=(noise(0.2*j/wnum))
+        }
     }
 
-    for(var j=wnum; j>0; j--){
-      vertex(j*wres,lineval[j]);
+    for(var j=wnum+1; j>0; j--){
+        vertex(j*wres,height/2+lineval[j]);
     }
 
-    vertex(j*wres,i*res);
-
+    vertex(0,height/2+lineval[0]);
     endShape(CLOSE);
 
-  }
+    var sum = lineval.reduce(function(a, b) { return a + b; });
+    var avg = sum / lineval.length;
+    center=avg;
+    for(var j=0; j<=wnum; j++){
+        lineval[j]-=(res+avg);
+    }
 }
 
 
@@ -95,3 +103,44 @@ function fillArray(value, len) {
   return arr;
 }
 
+
+
+
+
+
+
+
+
+
+
+var drawLines = function(){
+  var num = Math.ceil(height/res);
+  var wnum = Math.ceil(width/wres);
+
+  for(var i=0; i<num; i++){
+    noStroke();
+
+  fill(130+random(50),100,100);
+    beginShape();
+
+    for(var j=0; j<=wnum; j++){
+      vertex(j*wres,lineval[j]);
+    }
+
+
+    for(var j=0; j<=wnum; j++){
+      lineval[j]+=res;
+         if(Math.random()<0.4){
+         lineval[j]+=(0.5*res*noise(res*i,wres*j))
+
+         }
+    }
+
+    for(var j=wnum+1; j>0; j--){
+      vertex(j*wres,lineval[j]);
+    }
+
+    vertex(0,lineval[0]);
+    endShape(CLOSE);
+  }
+}
