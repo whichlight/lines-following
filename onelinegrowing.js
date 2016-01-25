@@ -51,46 +51,10 @@ function render(){
 
 
 
-var res = 10;
+var res = 5;
 var wres =5;
 
 
-
-
-var drawLine= function(){
-    var wnum = Math.ceil(width/wres);
-
-    noStroke();
-
-    fill(130+random(50),100,100);
-    beginShape();
-
-    for(var j=0; j<=wnum; j++){
-        vertex(j*wres,height/2+lineval[j]);
-    }
-
-
-    for(var j=0; j<=wnum; j++){
-        lineval[j]+=res;
-        if(Math.random()<0.4){
-            lineval[j]+=(noise(0.2*j/wnum))
-        }
-    }
-
-    for(var j=wnum+1; j>0; j--){
-        vertex(j*wres,height/2+lineval[j]);
-    }
-
-    vertex(0,height/2+lineval[0]);
-    endShape(CLOSE);
-
-    var sum = lineval.reduce(function(a, b) { return a + b; });
-    var avg = sum / lineval.length;
-    center=avg;
-    for(var j=0; j<=wnum; j++){
-        lineval[j]-=(res+avg);
-    }
-}
 
 
 function fillArray(value, len) {
@@ -102,16 +66,6 @@ function fillArray(value, len) {
   arr.push(value);
   return arr;
 }
-
-
-
-
-
-
-
-
-
-
 
 var drawLines = function(){
   var num = Math.ceil(height/res);

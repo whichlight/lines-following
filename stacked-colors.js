@@ -36,7 +36,11 @@ function pdefault(e){
 function draw() {
     update();
     render();
+    if(frameCount%500==0){
+    drawLines();
+    }
 }
+
 
 function update(){
     //normalize interaction
