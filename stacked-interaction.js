@@ -5,6 +5,7 @@ var frameInteraction = 0;
 var bars = [];
 var noises = [];
 var base_note;
+var masterVolume = 0.4;
 
 justpressed = false;
 
@@ -36,7 +37,22 @@ function setup() {
     initSynth();
 
 
+
+    el.addEventListener('touchend',intro);
+    el.addEventListener('mouseup',intro);
+
 }
+
+var intro = function(){
+    var i = document.getElementById('info');
+    this.removeEventListener('touchend',intro);
+    this.removeEventListener('mouseup',intro);
+    var b = document.getElementsByTagName('body')[0]
+    b.removeChild(i);
+
+}
+
+
 
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
@@ -67,6 +83,20 @@ function update(){
     }
 
     if(!m.pressed && justpressed){
+        //touchsound
+
+        var minP = 40;
+        var maxP = 70;
+        base_note = map(m.y,height,0,minP,maxP);
+        var vol = map(base_note,minP,maxP,0.95,0);
+        setVolume(vol*40);
+
+
+        console.log(base_note + "," + masterVolume);
+
+        noises.forEach(function(n){
+            n.setBaseNote(base_note);
+        });
         drawLines();
         justpressed = false;
         frameInteraction = frameCount;
@@ -152,9 +182,8 @@ var drawLines = function() {
     c2 = color(random(360),60,100);
 
 
-   base_notes = [45,47,48,50,52,54,55,57,59,60,62]
-   base_note = base_notes[floor(random(base_notes.length))];
- console.log(base_note);
+  // base_notes = [45,47,48,50,52,54,55,57,59,60,62]
+ //  base_note = base_notes[floor(random(base_notes.length))];
 
 /*
     var n1 = Math.floor(base_note+random(4));
@@ -163,10 +192,7 @@ var drawLines = function() {
     base_note = random()>0.5 ? n1:n2;
 */
 
-    noises.forEach(function(n){
-      n.setBaseNote(base_note);
 
-    });
 }
 
 
@@ -238,16 +264,16 @@ function Noise(args){
 
 
     this.gain = context.createGain();
-    this.gain.connect(context.destination);
+    this.gain.connect(masterGain);
     this.gain.gain.value = this.volume;
 
     var that = this;
-    this.o = random(3);
+    this.o = random(100);
     this.p = random(2);
     this.t = frameCount+200;
     this.lfo = setInterval(function(){
-      that.filter.Q.value = 15+20*(cos((that.p*0.7)*(that.o+ (frameCount-that.t)*Math.PI/180))+1)/2
-      that.gain.gain.value = 0.2*(cos(0.6*(that.o+(frameCount-that.t)*Math.PI/180)))
+      that.filter.Q.value = 30*(cos((that.p*0.7)*(that.o+ (frameCount-that.t)*Math.PI/180))+1)/2
+      that.gain.gain.value = 0.01*(cos(0.3*(that.o+(frameCount-that.t)*Math.PI/180)))
      },50);
 
 
@@ -263,19 +289,17 @@ function Noise(args){
     this.note = bn + this.offset;
     this.filter.frequency.value = mtof(this.note);
 
-    window.clearInterval(this.lfo);
-    this.t = frameCount+150;
-    this.gain.gain.value/=2;
-    var that = this;
-    this.lfo = setInterval(function(){
-      that.filter.Q.value = 15+20*(cos((that.p*0.7)*(that.o+ (frameCount-that.t)*Math.PI/180))+1)/2
-      that.gain.gain.value = 0.2*(cos(0.6*(that.o+ (frameCount-that.t)*Math.PI/180)))
-     },50);
+
   }
 
   this.init();
 
 
+}
+
+var setVolume = function(val){
+  masterVolume = val;
+  masterGain.gain.value = val;
 }
 
 function mtof(m) {
@@ -285,13 +309,24 @@ function mtof(m) {
 var startSynth = function(){
   base_note = 60;
 
-  noises.push(new Noise({base_note:base_note/2, offset:0, volume: 0.9}));
-  noises.push(new Noise({base_note:base_note/2, offset:7, volume: 0.7}));
+  masterGain = context.createGain();
+  masterGain.connect(context.destination);
+  masterGain.gain.value = masterVolume;
+
+  noises.push(new Noise({base_note:base_note/2, offset:0, volume: 0.5}));
   noises.push(new Noise({base_note:base_note, offset:0, volume: 0.6}));
+  noises.push(new Noise({base_note:base_note,  offset:12, volume: 0.05}));
+
+
+  noises.push(new Noise({base_note:base_note, offset:4, volume: 0.4}));
+
   noises.push(new Noise({base_note:base_note,  offset:16, volume: 0.3}));
-  noises.push(new Noise({base_note:base_note,  offset:12, volume: 0.2}));
-  noises.push(new Noise({base_note:base_note,  offset:22, volume: 0.2}));
-  noises.push(new Noise({base_note:base_note,  offset:24, volume: 0.1}));
-  noises.push(new Noise({base_note:base_note,  offset:7, volume: 0.4}));
+  noises.push(new Noise({base_note:base_note,  offset:28, volume: 0.02}));
+
+
+  noises.push(new Noise({base_note:base_note/2, offset:7, volume: 0.2}));
+  noises.push(new Noise({base_note:base_note,  offset:7, volume: 0.2}));
+
+
 }
 
