@@ -1,21 +1,34 @@
 //touch interaction var
 var m = {x:0, y:0};
 var c1,c2;
-var frameInteraction = 0;
 var bars = [];
 var noises = [];
 var base_note;
 var masterVolume = 0.4;
+var points = [];
+var colorIndex = [];
 
 justpressed = true;
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
+    var num = Math.ceil(height/res);
     grow = windowHeight;
     background(0);
+
     colorMode(HSB,360,100,100);
+
     c1 = color(random(360),0,100);
     c2 = color(random(360),0,0);
+
+
+    lineval = fillArray(0,width/wres);
+
+    for(var i=0; i<num; i++){
+        var c = random()<0.5 ? c1 : c2;
+        colorIndex.push(c);
+        points.push(lineval);
+     }
 
     //disable default touch events for mobile
     var el = document.getElementsByTagName("canvas")[0];
@@ -25,9 +38,7 @@ function setup() {
     el.addEventListener("touchleave", pdefault, false);
     el.addEventListener("touchmove", pdefault, false);
 
-    lineval = fillArray(0,width/wres);
 
-    var num = Math.ceil(height/res);
 
     for(var i =0; i<num; i++){
       bars.push(new Bar({index:i}));
@@ -65,10 +76,7 @@ function pdefault(e){
 function draw() {
     update();
     render();
-    var timeSinceInteraction = frameCount-frameInteraction;
-    if((timeSinceInteraction)%500==0 && timeSinceInteraction > 0){
-   //   drawLines();
-    }
+
 }
 
 
@@ -79,7 +87,6 @@ function update(){
     m.pressed = mouseIsPressed || touchIsDown;
 
     if(m.pressed && justpressed){
-      frameInteraction = frameCount;
       lineval = fillArray(0,width/wres);
       c1 = color(random(150,450)%360,100,100);
       c2 = color(random(360),60,100);
@@ -154,19 +161,17 @@ function Bar(args){
     }
 }
 
-var points;
-var colorIndex;
+
 var drawLines = function() {
   var num = Math.ceil(height/res);
   var wnum = Math.ceil(width/wres);
   var c;
   points = [];
-  colorIndex = [];
 
     for(var i=0; i<num; i++){
         points.push(lineval.slice(0));
         c = random()<0.5 ? c1 : c2;
-        colorIndex.push(c);
+        colorIndex[i] = (c);
 
         for(var j=0; j<=wnum; j++){
             lineval[j]+=res;
