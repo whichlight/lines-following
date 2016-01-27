@@ -89,7 +89,7 @@ function update(){
         var maxP = 70;
         base_note = map(m.y,height,0,minP,maxP);
         var vol = map(base_note,minP,maxP,0.95,0);
-        setVolume(vol*40);
+        setVolume(vol*4);
 
 
         console.log(base_note + "," + masterVolume);
@@ -182,17 +182,6 @@ var drawLines = function() {
     c2 = color(random(360),60,100);
 
 
-  // base_notes = [45,47,48,50,52,54,55,57,59,60,62]
- //  base_note = base_notes[floor(random(base_notes.length))];
-
-/*
-    var n1 = Math.floor(base_note+random(4));
-    var n2 = Math.floor(base_note-random(4));
-    console.log(n1);
-    base_note = random()>0.5 ? n1:n2;
-*/
-
-
 }
 
 
@@ -272,8 +261,8 @@ function Noise(args){
     this.p = random(2);
     this.t = frameCount+200;
     this.lfo = setInterval(function(){
-      that.filter.Q.value = 30*(cos((that.p*0.7)*(that.o+ (frameCount-that.t)*Math.PI/180))+1)/2
-      that.gain.gain.value = 0.01*(cos(0.3*(that.o+(frameCount-that.t)*Math.PI/180)))
+      that.filter.Q.value = 5+25*(cos((that.p*0.7)*(that.o+ (frameCount-that.t)*Math.PI/180))+1)/2
+      that.gain.gain.value = that.volume+ (that.volume/3)*(cos(0.8*(that.o+(frameCount-that.t)*Math.PI/180)))
      },50);
 
 
@@ -281,21 +270,69 @@ function Noise(args){
     this.whiteNoise.connect(this.filter);
     this.filter.connect(this.gain);
 
-    var convolver = context.createConvolver();
-
   }
+
 
  this.setBaseNote = function(bn){
     this.note = bn + this.offset;
     this.filter.frequency.value = mtof(this.note);
 
-
   }
 
   this.init();
 
+}
+
+
+
+function Synth(args){
+  this.note= args.base_note + args.offset;
+  this.offset = args.offset;
+  this.osc;
+  this.filter;
+  this.volume = args.volume;
+
+  this.init = function(){
+    this.osc =   this.osc = context.createOscillator(); // Create sound source
+    this.osc.type = "sawtooth";
+    this.osc.frequency.value = mtof(this.note);
+
+
+    this.filter= context.createBiquadFilter();
+    this.filter.type = "lowpass";
+    this.filter.frequency.value = 300;
+    this.filter.Q.value= 1;
+
+
+    this.gain = context.createGain();
+    this.gain.connect(masterGain);
+    this.gain.gain.value = this.volume;
+
+    var that = this;
+    this.o = random(100);
+    this.p = random(2);
+    this.t = frameCount+200;
+    this.lfo = setInterval(function(){
+      that.gain.gain.value = that.volume + (that.volume/2)*(cos(((frameCount-that.t)*Math.PI/180)))
+     },50);
+
+    this.osc.connect(this.filter);
+    this.filter.connect(this.gain);
+
+    this.osc.start(0);
+
+  }
+
+
+ this.setBaseNote = function(bn){
+    this.note = bn + this.offset;
+    this.osc.frequency.value = mtof(this.note);
+  }
+
+  this.init();
 
 }
+
 
 var setVolume = function(val){
   masterVolume = val;
@@ -327,6 +364,10 @@ var startSynth = function(){
   noises.push(new Noise({base_note:base_note/2, offset:7, volume: 0.2}));
   noises.push(new Noise({base_note:base_note,  offset:7, volume: 0.2}));
 
+
+  noises.push(new Synth({base_note:base_note/2, offset:0, volume: 0.1}));
+  noises.push(new Synth({base_note:base_note, offset:0, volume: 0.1}));
+  noises.push(new Synth({base_note:base_note,  offset:16, volume: 0.1}));
 
 }
 
