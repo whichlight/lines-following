@@ -7,7 +7,7 @@ var noises = [];
 var base_note;
 var masterVolume = 0.4;
 
-justpressed = false;
+justpressed = true;
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
@@ -78,28 +78,30 @@ function update(){
     m.y = max(touchY, mouseY);
     m.pressed = mouseIsPressed || touchIsDown;
 
-    if(m.pressed){
-      justpressed = true;
+    if(m.pressed && justpressed){
+      lineval = fillArray(0,width/wres);
+      c1 = color(random(150,450)%360,100,100);
+      c2 = color(random(360),60,100);
+
+      var minP = 40;
+      var maxP = 70;
+      base_note = map(m.y,height,0,minP,maxP);
+      var vol = map(base_note,minP,maxP,0.95,0);
+      setVolume(vol*4);
+
+
+      console.log(base_note + "," + masterVolume);
+
+      noises.forEach(function(n){
+        n.setBaseNote(base_note);
+      });
+      drawLines();
+      frameInteraction = frameCount;
+      justpressed = false;
     }
 
-    if(!m.pressed && justpressed){
-        //touchsound
-
-        var minP = 40;
-        var maxP = 70;
-        base_note = map(m.y,height,0,minP,maxP);
-        var vol = map(base_note,minP,maxP,0.95,0);
-        setVolume(vol*4);
-
-
-        console.log(base_note + "," + masterVolume);
-
-        noises.forEach(function(n){
-            n.setBaseNote(base_note);
-        });
-        drawLines();
-        justpressed = false;
-        frameInteraction = frameCount;
+    if(!m.pressed){
+      justpressed = true;
     }
 
 
@@ -176,10 +178,7 @@ var drawLines = function() {
     }
     points.push(lineval.slice(0));
 
-    //reset
-    lineval = fillArray(0,width/wres);
-    c1 = color(random(150,450)%360,100,100);
-    c2 = color(random(360),60,100);
+
 
 
 }
