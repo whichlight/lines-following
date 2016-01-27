@@ -45,7 +45,6 @@ function setup() {
     }
 
     drawLines();
-    initSynth();
 
 
 
@@ -61,6 +60,10 @@ var intro = function(){
     var b = document.getElementsByTagName('body')[0]
     b.removeChild(i);
 
+    initSynth();
+
+    window.addEventListener('touchend',updateWave);
+    window.addEventListener('mouseup',updateWave);
 }
 
 
@@ -79,45 +82,38 @@ function draw() {
 
 }
 
+var updateWave = function(){
+  lineval = fillArray(0,width/wres);
+  c1 = color(random(150,450)%360,100,100);
+  c2 = color(random(360),60,100);
+
+  if(typeof(context)!="undefined"){
+    var minP = 40;
+    var maxP = 70;
+    base_note = map(m.y,height,0,minP,maxP);
+    var vol = map(base_note,minP,maxP,0.95,0);
+    setVolume(vol*3);
+    noises.forEach(function(n){
+      n.setBaseNote(base_note);
+    });
+  }
+
+  drawLines();
+}
 
 function update(){
-    //normalize interaction
-    m.x = max(touchX, mouseX);
-    m.y = max(touchY, mouseY);
-    m.pressed = mouseIsPressed || touchIsDown;
+  //normalize interaction
+  m.x = max(touchX, mouseX);
+  m.y = max(touchY, mouseY);
+  m.pressed = mouseIsPressed || touchIsDown;
 
-    if(m.pressed && justpressed){
-      lineval = fillArray(0,width/wres);
-      c1 = color(random(150,450)%360,100,100);
-      c2 = color(random(360),60,100);
-
-      var minP = 40;
-      var maxP = 70;
-      base_note = map(m.y,height,0,minP,maxP);
-      var vol = map(base_note,minP,maxP,0.95,0);
-      setVolume(vol*3);
-
-      noises.forEach(function(n){
-        n.setBaseNote(base_note);
-      });
-
-      justpressed = false;
-
-      drawLines();
-    }
-
-    if(!m.pressed){
-      justpressed = true;
-    }
-
-
-   //motion for bars
-   for(var i=0; i<points.length; i++){
-       points[i].forEach(function(v,k){
-         points[i][k]+=(0.1*sin(k+frameCount*Math.PI/180));
-         points[i][k]+=(0.3*sin(i+frameCount*Math.PI/180));
-       });
-   }
+  //motion for bars
+  for(var i=0; i<points.length; i++){
+    points[i].forEach(function(v,k){
+      points[i][k]+=(0.1*sin(k+frameCount*Math.PI/180));
+      points[i][k]+=(0.3*sin(i+frameCount*Math.PI/180));
+    });
+  }
 }
 
 function render(){
@@ -166,12 +162,11 @@ var drawLines = function() {
   var num = Math.ceil(height/res);
   var wnum = Math.ceil(width/wres);
   var c;
-  points = [];
 
     for(var i=0; i<num; i++){
-        points.push(lineval.slice(0));
+        points[i] = lineval.slice(0);
         c = random()<0.5 ? c1 : c2;
-        colorIndex[i] = (c);
+        colorIndex[i] = c;
 
         for(var j=0; j<=wnum; j++){
             lineval[j]+=res;
