@@ -79,6 +79,7 @@ function update(){
     m.pressed = mouseIsPressed || touchIsDown;
 
     if(m.pressed && justpressed){
+      frameInteraction = frameCount;
       lineval = fillArray(0,width/wres);
       c1 = color(random(150,450)%360,100,100);
       c2 = color(random(360),60,100);
@@ -87,17 +88,15 @@ function update(){
       var maxP = 70;
       base_note = map(m.y,height,0,minP,maxP);
       var vol = map(base_note,minP,maxP,0.95,0);
-      setVolume(vol*4);
-
-
-      console.log(base_note + "," + masterVolume);
+      setVolume(vol*3);
 
       noises.forEach(function(n){
         n.setBaseNote(base_note);
       });
-      drawLines();
-      frameInteraction = frameCount;
+
       justpressed = false;
+
+      drawLines();
     }
 
     if(!m.pressed){
@@ -177,9 +176,6 @@ var drawLines = function() {
         }
     }
     points.push(lineval.slice(0));
-
-
-
 
 }
 
